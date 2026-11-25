@@ -7,6 +7,7 @@ from typing import Any
 from . import __version__
 from .expressions import ExpressionError
 from .symbolic import simplify
+from .visualization import visualize
 
 
 def dispatch(request: dict[str, Any]) -> dict[str, Any]:
@@ -16,12 +17,19 @@ def dispatch(request: dict[str, Any]) -> dict[str, Any]:
     try:
         operation = request.get("operation")
         if operation == "health":
-            result = {"status": "ok", "version": __version__, "capabilities": ["symbolic.simplify"]}
+            result = {"status": "ok", "version": __version__, "capabilities": ["symbolic.simplify", "visualize.graph2d", "visualize.complexPlane", "visualize.graph3d"]}
         elif operation == "symbolic.simplify":
             expression = request.get("expression")
             if not isinstance(expression, str):
                 raise ExpressionError("Field 'expression' must be a string.")
-            result = simplify(expression)
+            context = request.get("context", [])
+            result = simplify(expression, context)
+        elif operation in {"visualize.graph2d", "visualize.complexPlane", "visualize.graph3d"}:
+            expression = request.get("expression")
+            if not isinstance(expression, str):
+                raise ExpressionError("Field 'expression' must be a string.")
+            context = request.get("context", [])
+            result = visualize(operation, expression, request.get("options"), context)
         else:
             return {"id": str(request_id), "ok": False, "error": {"code": "unknown_operation", "message": f"Unsupported operation: {operation}"}}
         return {"id": str(request_id), "ok": True, "result": result}

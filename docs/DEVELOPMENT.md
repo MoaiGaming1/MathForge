@@ -10,6 +10,7 @@ MathForge targets desktop macOS (Apple Silicon and Intel), Windows (x64, with AR
 - Rust stable and Cargo, with the host target and native compiler installed.
 - Python 3.10+ and pip for local development. The app prefers the repository's `.venv` interpreter, then searches `PATH` (`python` on Windows, `python3` on macOS/Linux).
 - Platform-specific Tauri native dependencies listed below.
+- SQLite is bundled through `rusqlite`; no system SQLite installation is required.
 
 The first dependency install needs network access. After dependencies are installed, the development app and local Python engine do not need a network connection. The frontend uses system fonts and makes no runtime network requests.
 
@@ -69,6 +70,7 @@ Run these from the repository root with the Python virtual environment active. O
 npm run build
 cargo check --manifest-path src-tauri/Cargo.toml
 cargo build --manifest-path src-tauri/Cargo.toml
+cargo test --manifest-path src-tauri/Cargo.toml
 python -m pytest engine/tests
 ```
 
@@ -78,13 +80,13 @@ python -m pytest engine/tests
 
 The Rust process starts `python -X utf8 -u -m mathforge_engine` from `engine/`. It looks for `.venv/Scripts/python.exe` on Windows or `.venv/bin/python` on macOS/Linux, then falls back to `python` or `python3` on `PATH`. Set `MATHFORGE_PYTHON` to override the executable and `MATHFORGE_ENGINE_DIR` to point to another engine directory. Relative override paths resolve from the project root.
 
-In a plain browser preview (`npm run dev`), Tauri IPC is unavailable, so the notebook shows a static example and preview status.
+In a plain browser preview (`npm run dev`), Tauri IPC and native file dialogs are unavailable. The library shows an empty preview; persistent library actions require the desktop app.
 
 ## Implemented and remaining
 
-- Implemented: Tauri 2 configuration with all bundle targets and desktop icons; OS-resolved application-data directory creation; platform-neutral Rust process management; Windows/Unix virtualenv selection; UTF-8 JSON Lines; a restricted Python expression grammar; React/Vite frontend; and Python tests.
+- Implemented: Tauri 2 configuration with all bundle targets and desktop icons; OS-resolved application-data directory; SQLite notebook metadata and one-level folders; versioned `.mathforge` files; autosave and atomic replacement; import/export dialogs; startup recovery; platform-neutral Rust process management; Windows/Unix virtualenv selection; UTF-8 JSON Lines; restricted Python expressions; library/editor UI; and Rust/Python tests.
 - Built and checked on this machine: Apple Silicon macOS, Python 3.12, Node 26, and Rust stable. See the current task's verification results for exact commands.
-- Not implemented: notebook persistence, packaged Python distribution, plot rendering, Ollama integration, and automated builds on Windows, Linux, Intel macOS, or ARM64 Windows/Linux.
+- Not implemented: packaged Python distribution, plot rendering, Ollama integration, notebook version history/backups, and automated builds on Windows, Linux, Intel macOS, or ARM64 Windows/Linux.
 
 ## Python distribution plan
 

@@ -10,6 +10,10 @@ pub struct EngineRequest {
     pub operation: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expression: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub context: Option<Vec<String>>,
 }
 
 impl EngineRequest {
@@ -18,13 +22,23 @@ impl EngineRequest {
             id: NEXT_ID.fetch_add(1, Ordering::Relaxed).to_string(),
             operation: operation.into(),
             expression,
+            options: None,
+            context: None,
         }
     }
     pub fn health() -> Self {
         Self::new("health", None)
     }
-    pub fn simplify(expression: String) -> Self {
-        Self::new("symbolic.simplify", Some(expression))
+    pub fn simplify(expression: String, context: Vec<String>) -> Self {
+        let mut request = Self::new("symbolic.simplify", Some(expression));
+        request.context = Some(context);
+        request
+    }
+    pub fn visualize(operation: String, expression: String, options: Value, context: Vec<String>) -> Self {
+        let mut request = Self::new(&operation, Some(expression));
+        request.options = Some(options);
+        request.context = Some(context);
+        request
     }
 }
 

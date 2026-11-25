@@ -1,0 +1,10 @@
+import type { DisplayMode, NotebookCell, VisualizationSettings } from "../types/notebook";
+export function switchDisplayMode(settings: VisualizationSettings, mode: DisplayMode): VisualizationSettings;
+export function updateDisplaySettings(settings: VisualizationSettings, mode: Exclude<DisplayMode, "result"> | "result", patch: Record<string, unknown>): VisualizationSettings;
+export function visualizationForCell(cell: NotebookCell): VisualizationSettings;
+export function visualizationSource(source: string, mode?: DisplayMode): string;
+export function engineSource(source: string, mode?: DisplayMode): string;
+export function isCompleteEngineSource(source: string): boolean;
+export function notebookSuggestions(context: string[]): string[];
+export function relevantNotebookContext(expression: string, context: string[]): string[];
+export function calculationKey(cell: NotebookCell, context?: string[]): string;
